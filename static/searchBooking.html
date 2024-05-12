@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Search Booking Form</title>
+    <link type="text/css" rel="stylesheet" href="searchBooking.css">
+    <link type="text/css" rel="stylesheet" href="add.css">
+    <link type="text/css" rel="stylesheet" href="login-signup.css">
+    <link type="text/css" rel="stylesheet" href="twoParts.css">
+    <link type="text/css" rel="stylesheet" href="threeButtons.css">
+</head>
+
+<body>
+    <div class='maindiv-booking'>
+        <div class='search_b'>Search Booking</div>
+        <form class='search-booking-form' id="search-booking-form">
+            <label class='pad-div'>
+                Select Room:
+                <select id="room">
+                    <option value="">Select a room</option>
+                </select>
+            </label>
+            <label>
+                Date:
+                <input class='pad-div' type="date" id="date" required>
+            </label>
+            <button type="submit" class='search-button'>Search</button>
+        </form>
+
+        <ul class="search-booking-list" id="search-booking-list">
+            <!-- Bookings will be displayed here -->
+        </ul>
+    </div>
+
+    <div class="three">
+    <button id="add-room">Add Room</button>
+    <button id="add-booking">Add Booking</button>
+    <button id="sign-out">Sign Out</button>
+    </div>
+
+    <script type="module">
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBookingForm = document.getElementById('search-booking-form');
+            const roomSelect = document.getElementById('room');
+            const dateInput = document.getElementById('date');
+            const bookingList = document.getElementById('search-booking-list');
+
+            // Fetch rooms and populate select options
+            async function fetchRooms() {
+                try {
+                    const response = await fetch('http://localhost:8000/rooms');
+                    const rooms = await response.json();
+                    rooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room.room_no;
+                        option.textContent = `${room.room_no} - ${room.room_type}`;
+                        roomSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch rooms:', error);
+                }
+            }
+
+            // Function to fetch bookings and display them
+            async function fetchBookings(event) {
+                event.preventDefault();
+                const selectedRoom = roomSelect.value;
+                const selectedDate = dateInput.value;
+                try {
+                    const response = await fetch(`http://localhost:8000/bookings/${selectedRoom}/${selectedDate}`);
+                    const bookings = await response.json();
+                    bookingList.innerHTML = '';
+                    bookings.forEach(booking => {
+                        const li = document.createElement('li');
+                        li.textContent = `Room No: ${booking.room_id}, Start Time: ${booking.start_time}, End Time: ${booking.end_time}`;
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.addEventListener('click', () => handleDeleteBooking(booking));
+                        li.appendChild(deleteButton);
+                        bookingList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch bookings:', error);
+                }
+            }
+
+            // Function to delete a booking
+            async function handleDeleteBooking(booking) {
+                try {
+                    const response = await fetch(`http://localhost:8000/booking/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(booking)
+                    });
+                    if (response.ok) {
+                        console.log('Booking deleted successfully');
+                        fetchBookings();
+                    } else {
+                        const errorMessage = await response.text();
+                        console.error(`Failed to delete booking: ${errorMessage}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting booking:', error);
+                }
+            }
+
+            // Event listeners
+            searchBookingForm.addEventListener('submit', fetchBookings);
+
+            // Fetch rooms when the page loads
+            fetchRooms();
+        });
+
+        document.getElementById("add-room").addEventListener('click', function () {
+            window.location.href = "http://127.0.0.1:8000/static/room.html";
+        });
+
+        document.getElementById("add-booking").addEventListener('click', function () {
+            window.location.href = "http://127.0.0.1:8000/static/booking.html";
+        });
+
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7GYHoIZjG02prIDGfYBLQDI1o9OAYDFc",
+            authDomain: "room-booking-38d16.firebaseapp.com",
+            projectId: "room-booking-38d16",
+            storageBucket: "room-booking-38d16.appspot.com",
+            messagingSenderId: "472075646045",
+            appId: "1:472075646045:web:f3aac2e3d6232bea8d09b4",
+            measurementId: "G-XCZML03C1Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById("sign-out").addEventListener('click', function () {
+            signOut(auth)
+                .then((output) => {
+                    document.cookie = "token=;path=/;SameSite=Strict";
+                    window.location = "/";
+                });
+        });
+    </script>
+</body>
+
+</html>

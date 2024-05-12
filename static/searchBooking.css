@@ -1,0 +1,147 @@
+/* Layout */
+.booking-management {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh; /* Adjust height as needed */
+  }
+  
+  .search-booking-form {
+    flex: 0 0 30%;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-right: 1px solid #ddd;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top: 5%;
+  }
+
+  .search_b{
+    text-align: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    font-weight: bold;
+    font-size: 24px; /* Adjust font size as needed */
+    color: #f68989; /* Adjust text color as needed */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    margin-left: 3%;
+  }
+  
+
+
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  select,
+  input[type="datetime-local"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 100%;
+  }
+  
+  button[type="submit"] {
+    background-color: #4CAF50; /* Primary color */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #3e8e41;
+  }
+  
+
+  
+  .booking-details {
+    flex: 1;
+  }
+  
+  
+  /* Responsiveness (Optional) */
+  @media (max-width: 768px) {
+    .booking-management {
+      flex-direction: column;
+    }
+  
+    .booking-form,
+    .bookings-list {
+      flex: 1;
+    }
+  }
+  
+
+
+  .search-booking-list {
+    padding: 20px;
+    height: 300px; /* Set a fixed height for the list container */
+    margin-left: 28%;
+    margin-right: 5%;
+    background-color: #fff;
+    width: 50%;
+  }
+  
+  .booking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+    font-weight: bold; 
+    margin-left: 5%;
+  }
+  
+  .delete-button {
+    background-color: #f00; /* Red for delete action */
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out; /* Add transition for hover effect */
+    margin-left: 3%;
+    margin-right: 3%;
+  }
+  
+  .delete-button:hover {
+    background-color: #c00; /* Darker red on hover */
+  }
+
+
+
+  .booking-item {
+    display: flex; /* Make the list item container flexible */
+    justify-content: space-between; /* Distribute content horizontally */
+    align-items: flex-start; /* Align content vertically at the top */
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 5px;
+  }
+  
+  .room-details {
+    display: flex; /* Make the room details container flexible */
+    flex-grow: 1; /* Allow room details to fill remaining space */
+  }
+  
+  .room-details span {
+    margin-right: 10px; /* Add spacing between details */
+  }
+  
+  
+
+  .pad-div{
+    margin-bottom: 5%;
+    margin-top: 5;
+
+  }
+
+  .search-button{
+    width: 100%;
+  }

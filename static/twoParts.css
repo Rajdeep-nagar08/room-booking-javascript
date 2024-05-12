@@ -1,0 +1,17 @@
+.booking-management {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 100vh; /* Adjust height as needed */
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 10%;
+    margin-bottom: 1%;
+  }
+  
+  .dashboard-container {
+    flex: 1; /* Both forms share available space equally */
+    display: flex; /* Forms positioned side-by-side */
+    margin-left: 20;
+  }
+  

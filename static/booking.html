@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Booking Form</title>
+    <link type="text/css" rel="stylesheet" href="add.css">
+    <link type="text/css" rel="stylesheet" href="login-signup.css">
+    <link type="text/css" rel="stylesheet" href="twoParts.css">
+    <link type="text/css" rel="stylesheet" href="searchBooking.css">
+    <link type="text/css" rel="stylesheet" href="threeButtons.css">
+</head>
+
+<body>
+    <div class='maindiv-booking'>
+        <div class='add-bookings'>Add Booking</div>
+        <form class='booking-form' id="booking-form">
+            <label>
+                Select Room:
+                <select id="room">
+                    <option value="">Select a room</option>
+                </select>
+            </label>
+            <label>
+                Start Time:
+                <input type="datetime-local" id="start-time" required>
+            </label>
+            <label>
+                End Time:
+                <input type="datetime-local" id="end-time" required>
+            </label>
+            <button type="submit" id="add-booking">Add Booking</button>
+        </form>
+
+        <div class='all-booking'>All Bookings</div>
+        <ul class="bookings-rooms-list" id="bookings-list">
+            <!-- Bookings will be displayed here -->
+        </ul>
+
+
+        <div class="three">
+
+            <button id="add-room">Add Room</button>
+
+            <button id="search-booking">Search Booking</button>
+
+            <button id="sign-out">Sign Out</button>
+
+        </div>
+
+    </div>
+
+
+
+    <script type="module">
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const bookingForm = document.getElementById('booking-form');
+            const roomSelect = document.getElementById('room');
+            const startTimeInput = document.getElementById('start-time');
+            const endTimeInput = document.getElementById('end-time');
+            const bookingsList = document.getElementById('bookings-list');
+
+            // Fetch rooms and populate select options
+            async function fetchRooms() {
+                try {
+                    const response = await fetch('http://localhost:8000/rooms');
+                    const rooms = await response.json();
+                    rooms.forEach(room => {
+                        const option = document.createElement('option');
+                        option.value = room.room_no;
+                        option.textContent = `${room.room_no} - ${room.room_type}`;
+                        roomSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch rooms:', error);
+                }
+            }
+
+            // Function to fetch bookings and display them
+            async function fetchAndDisplayBookings() {
+                try {
+                    const response = await fetch('http://localhost:8000/bookings');
+                    const bookings = await response.json();
+                    bookingsList.innerHTML = '';
+                    bookings.forEach(booking => {
+                        const li = document.createElement('li');
+                        li.textContent = `Room No: ${booking.room_id}, Start Time: ${booking.start_time}, End Time: ${booking.end_time}`;
+                        const deleteButton = document.createElement('button');
+                        deleteButton.textContent = 'Delete';
+                        deleteButton.addEventListener('click', () => handleDeleteBooking(booking));
+                        li.appendChild(deleteButton);
+                        bookingsList.appendChild(li);
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch bookings:', error);
+                }
+            }
+
+            // Function to add a new booking
+            async function handleAddBooking(e) {
+                e.preventDefault();
+
+                try {
+
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyC7GYHoIZjG02prIDGfYBLQDI1o9OAYDFc",
+                        authDomain: "room-booking-38d16.firebaseapp.com",
+                        projectId: "room-booking-38d16",
+                        storageBucket: "room-booking-38d16.appspot.com",
+                        messagingSenderId: "472075646045",
+                        appId: "1:472075646045:web:f3aac2e3d6232bea8d09b4",
+                        measurementId: "G-XCZML03C1Y"
+                    };
+
+                    const app = initializeApp(firebaseConfig);
+
+                    const auth = getAuth(app).currentUser;
+
+                    if (auth) {
+                        const newBooking = {
+                            room_id: roomSelect.value,
+                            start_time: startTimeInput.value,
+                            end_time: endTimeInput.value,
+                            username: auth.email
+                        };
+
+
+                        const response = await fetch('http://localhost:8000/bookings/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(newBooking)
+                        });
+                        if (response.ok) {
+                            console.log('Booking added successfully');
+                            fetchAndDisplayBookings(); // Refresh booking list
+                        } else {
+                            console.error('Failed to add booking');
+                            const errorMessage = await response.text();
+                            console.error(`Failed to add booking: ${errorMessage}`);
+                        }
+                    }
+                    else {
+                        signOut(getAuth(app))
+                            .then((output) => {
+                                document.cookie = "token=;path=/;SameSite=Strict";
+                                window.location = "/";
+                            });
+                    }
+                } catch (error) {
+                    console.error('Error adding booking:', error);
+                }
+            }
+
+
+
+            // Function to delete a booking
+            async function handleDeleteBooking(booking) {
+                try {
+                    const response = await fetch(`http://localhost:8000/booking/delete`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(booking)
+                    });
+                    if (response.ok) {
+                        console.log('Booking deleted successfully');
+                        fetchAndDisplayBookings(); // Refresh booking list
+                    } else {
+                        const errorMessage = await response.text();
+                        console.error(`Failed to delete booking: ${errorMessage}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting booking:', error);
+                }
+            }
+
+            // Event listeners
+            bookingForm.addEventListener('submit', handleAddBooking);
+
+            // Fetch rooms and bookings when the page loads
+            fetchRooms();
+            fetchAndDisplayBookings();
+        });
+
+
+        document.getElementById("add-room").addEventListener('click', function () {
+            window.location.href = "http://127.0.0.1:8000/static/room.html";
+        });
+
+        document.getElementById("search-booking").addEventListener('click', function () {
+            window.location.href = "http://127.0.0.1:8000/static/searchBooking.html";
+        });
+
+
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7GYHoIZjG02prIDGfYBLQDI1o9OAYDFc",
+            authDomain: "room-booking-38d16.firebaseapp.com",
+            projectId: "room-booking-38d16",
+            storageBucket: "room-booking-38d16.appspot.com",
+            messagingSenderId: "472075646045",
+            appId: "1:472075646045:web:f3aac2e3d6232bea8d09b4",
+            measurementId: "G-XCZML03C1Y"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        document.getElementById("sign-out").addEventListener('click', function () {
+            signOut(auth)
+                .then((output) => {
+                    document.cookie = "token=;path=/;SameSite=Strict";
+                    window.location = "/";
+                });
+        });
+
+    </script>
+
+</body>
+
+</html>
